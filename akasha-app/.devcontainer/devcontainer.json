@@ -1,0 +1,21 @@
+{
+  "name": "Extension DevKit",
+  "dockerComposeFile": "./docker-compose.yml",
+  "service": "devcontainer",
+  "postCreateCommand": "yarn install",
+  "postAttachCommand": "yarn dev",
+  "customizations": {
+    "jetbrains": {
+      "backend": "WebStorm"
+    },
+    "vscode": {
+      "extensions": ["esbenp.prettier-vscode", "bradlc.vscode-tailwindcss"]
+    }
+  },
+  "remoteUser": "node",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated"
+  ],
+  "workspaceFolder": "/workspace",
+  "forwardPorts": [8070]
+}

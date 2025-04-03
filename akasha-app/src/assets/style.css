@@ -1,0 +1,6 @@
+/* 
+  Only for custom css classes and those added by shadcn.
+  Tailwind classes will be inherited from the world 
+  this extension mounts in.
+*/
+@custom-variant dark (&:is(.dark *));

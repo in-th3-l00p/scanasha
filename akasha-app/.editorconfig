@@ -1,0 +1,33 @@
+root = true
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+# for Webstorm
+ij_typescript_force_quote_style = true
+ij_typescript_use_double_quotes = false
+ij_typescript_enforce_trailing_comma = whenmultiline
+
+[*.{js,ts,tsx,mts,mjs,graphql}]
+indent_style = space
+indent_size = 2
+max_line_length = 120
+
+[*.sol]
+indent_size = 4
+indent_style = space
+max_line_length = 120
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.json]
+indent_size = 2
+
+[*.{html,js,md,ts,tsx,mts,mjs}]
+block_comment_start = /**
+block_comment = *
+block_comment_end = */

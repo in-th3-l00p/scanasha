@@ -1,0 +1,127 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LaTeX Template: Project Titlepage
+%
+% Source: http://www.howtotex.com
+% Date: April 2011
+% 
+% This is a title page template which be used for articles & reports.
+% 
+% Feel free to distribute this example, but please keep the referral
+% to howtotex.com
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% How to use writeLaTeX: 
+%
+% You edit the source code here on the left, and the preview on the
+% right shows you the result within a few seconds.
+%
+% Bookmark this page and share the URL with your co-authors. They can
+% edit at the same time!
+%
+% You can upload figures, bibliographies, custom classes and
+% styles using the files menu.
+%
+% If you're new to LaTeX, the wikibook is a great place to start:
+% http://en.wikibooks.org/wiki/LaTeX
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% --------------------------------------------------------------------
+% Preamble
+% --------------------------------------------------------------------
+\documentclass[paper=a4, fontsize=11pt,twoside]{scrartcl}
+
+\usepackage[a4paper,pdftex]{geometry}
+\setlength{\oddsidemargin}{5mm}	
+\setlength{\evensidemargin}{5mm}
+
+\usepackage[english]{babel}
+\usepackage[protrusion=true,expansion=true]{microtype}	
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
+\usepackage{graphicx}
+
+% --------------------------------------------------------------------
+% Definitions (do not change this)
+% --------------------------------------------------------------------
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}} 	% Horizontal rule
+
+\makeatletter							% Title
+\def\printtitle{%						
+    {\centering \@title\par}}
+\makeatother									
+
+\makeatletter							% Author
+\def\printauthor{%					
+    {\centering \large \@author}}				
+\makeatother							
+
+% --------------------------------------------------------------------
+% Metadata (Change this)
+% --------------------------------------------------------------------
+\title{	\normalsize \textsc{Project description} 
+		 	\\[2.0cm]								
+			\HRule{0.5pt} \\					
+			\LARGE \textbf{\uppercase{Scanasha} \\ \vspace{0.1cm} decentralized DeFi protocols review automatization software solution}
+			\HRule{2pt} \\ [0.5cm]		
+			\normalsize \today
+		}
+
+\author{
+		Caru' cu bere boys \\	
+		ETH Bucharest 2025\\	
+		2 days hackathon implementation\\
+        \texttt{find us on Telegram} \\
+}
+
+
+\begin{document}
+\thispagestyle{empty}
+\printtitle	
+  	\vfill
+\printauthor
+\newpage
+
+\setcounter{page}{1}
+\section{Introduction}
+
+\subsection{Context}
+With the rapid evolution of the decentralized finance (DeFi) ecosystem, auditing and reviewing DeFi protocols have become critical processes for ensuring the security and reliability of utilized platforms. However, manual protocol reviews present significant challenges in terms of efficiency and scalability.
+
+\subsection{Solution}
+This project introduces \textbf{Scanasha}, an innovative software solution designed to automate the review process of DeFi protocols on the \textit{DeFiScan} platform by leveraging advanced artificial intelligence (AI) technologies. \textbf{Scanasha} significantly enhances analysis speed and accuracy by integrating AI models capable of automatically identifying vulnerabilities, analyzing risks, and generating detailed recommendations.
+
+\subsection{Decentralization}
+Access to \textbf{Scanasha} is provided through an \textit{Akasha}, created on the modular platform \textit{AKASHA World}. AKASHA World is a decentralized, modular environment empowering communities to self-organize, build, and access distributed applications (dApps) aligned with web3 principles. Consequently, users benefit from transparency and decentralization in accessing automated auditing services for DeFi protocols, fostering a more robust and secure infrastructure within the decentralized financial ecosystem.
+
+\section{Usage}
+
+\subsection{Accessing Scanasha}
+
+To use \textbf{Scanasha}, users must first access it through \textit{AKASHA World}. This requires having a valid profile created on the AKASHA platform. Once logged in with an active Akasha identity, users can navigate to the Scanasha interface where they can begin the review process.
+
+The integration with AKASHA ensures that the access flow remains decentralized, user-friendly, and secure, in accordance with web3 principles. It also allows for persistent user identity and community engagement across multiple distributed applications within the AKASHA ecosystem.
+
+\subsection{Providing Protocol Documentation}
+
+In order for \textbf{Scanasha} to perform an accurate and context-aware review, users must provide documentation for the DeFi protocol they wish to analyze. This is essential because the AI models employed by Scanasha rely on contextual cues such as the protocol's name, description, contract address, and other relevant metadata to tailor their analysis.
+
+The documentation is submitted via a URL, which should point to a publicly accessible resource (such as a GitHub repository, official documentation site, or whitepaper). Once the URL is provided, the AI begins scraping the content, extracting key details and structuring them internally for a comprehensive review.
+
+This step enables the system to autonomously retrieve all necessary information for performing in-depth risk assessments and generating intelligent insights about the protocol.
+
+\subsection{Permission Scanning and Function Analysis}
+
+After the initial documentation is processed, \textbf{Scanasha} runs the \textit{DeFiScan permission scanner} on the smart contract provided. This scanner examines the DeFi protocol—or any smart contract system—for permissioned functions that might introduce risks or require special privileges.
+
+The output of this scanner is a JSON file that encapsulates metadata for each function. Using this data, \textbf{Scanasha} generates a detailed markdown report. For every identified function, the report includes:
+\begin{itemize}
+  \item The \textbf{name} of the function.
+  \item A \textbf{description}, generated using AI by analyzing the function code, cross-referencing Etherscan data, and contextualizing with the submitted documentation.
+  \item The level of \textbf{permission} required to execute the function.
+\end{itemize}
+
+Based on the collected and generated data, the AI engine assigns a \textbf{scoring} to the protocol. This score reflects the potential risks associated with function permissions, centralization, and critical access control elements. The scoring system is explained in the final section of the markdown report, where the AI details the rationale behind the assigned rating, highlighting specific patterns, anomalies, or concerns that influenced the decision.
+
+This automated process provides users with a transparent and data-driven overview of the contract's security posture, accelerating the review pipeline and improving its consistency.
+
+\end{document}

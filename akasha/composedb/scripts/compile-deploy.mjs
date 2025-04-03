@@ -19,7 +19,7 @@ dotenv.config();
 
 const run = async () => {
     // asuming that we are running in dev container
-    const ceramic = new CeramicClient('http://ceramic:7007');
+    const ceramic = new CeramicClient('http://localhost:7007');
     if (!process.env.DID_ADMIN_PRIVATE_KEY) {
         // there is no admin key, generate one and update the 
         // .env and the ceramic node config files
@@ -73,7 +73,13 @@ const run = async () => {
             schema: voteSchema,
         });
 
-        const composite = Composite.from([pollComposite, voteComposite]);
+        // review composite
+        const reviewComposite = await createComposite(
+            ceramic,
+            `${COMPOSITES_PATH}/03-review.graphql`
+        );
+
+        const composite = Composite.from([pollComposite, voteComposite, reviewComposite]);
 
         createDirIfNotExist(`${DEFINITION_PATH}/`);
 

@@ -85,8 +85,6 @@ export const createPoll = async (
   }
 };
 
-console.log('createPoll', createPoll);
-
 export const createVote = async (pollId: string, optionID: string, isValid = true) => {
   const compose = getComposeClient();
   try {
@@ -378,7 +376,9 @@ export const createReview = async (
   contractName: string,
   description: string,
   address: string,
+  authenticatedDID: string,
 ) => {
+  console.log(authenticatedDID);
   const compose = getComposeClient();
   try {
     const res = await compose.executeQuery<CreateReviewResponse>(
@@ -392,6 +392,9 @@ export const createReview = async (
             address
             createdAt
             status
+            author {
+              id
+            }
           }
         }
       }

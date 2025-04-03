@@ -4,6 +4,7 @@ import { useGetProfileByDidQuery } from '@akashaorg/ui-core-hooks/lib/generated'
 import { selectProfileData } from '@akashaorg/ui-core-hooks/lib/selectors/get-profile-by-did-query';
 import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '../ui/button';
 
 const statusColors = {
   pending: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/50',
@@ -49,14 +50,21 @@ const ReviewCard = ({
           <Typography variant="sm" bold>
             {contractName}
           </Typography>
-          <Badge className={statusColors[status]}>
-            {status === 'in_progress' ? 'In progress' : status.charAt(0).toUpperCase() + status.slice(1)}
-          </Badge>
+
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm">
+              Audit
+            </Button>
+            <Button variant="outline" size="sm">
+              Edit
+            </Button>
+          </div>
+
         </div>
         
         <Typography variant="sm">{description}</Typography>
         
-        <div className="bg-muted/20 rounded-md p-3 mt-2">
+        <div className="bg-muted/20 rounded-md p-3 mt-2 flex flex-col items-center gap-2">
           <Typography variant="xs" className="text-muted-foreground">
             Contract Address
           </Typography>

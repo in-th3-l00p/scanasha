@@ -1,0 +1,29 @@
+
+services:
+  ceramic-one:
+    image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:latest
+    volumes:
+      - ./data/ceramic-one:/root/.ceramic-one
+    environment:
+      - CERAMIC_ONE_BIND_ADDRESS=0.0.0.0:5001
+      - CERAMIC_ONE_CORS_ALLOW_ORIGINS=*
+      - CERAMIC_ONE_NETWORK=in-memory
+    ports:
+      - '5001:5001'
+      - '9464:9464'
+  ceramic:
+    image: ceramicnetwork/js-ceramic:latest
+    volumes:
+      - ./data/ceramic_daemon:/root/.ceramic
+    command: [
+      "--network=inmemory",
+      "--ipfs-api=http://ceramic-one:5001"
+    ]
+    ports:
+      - '7007:7007'
+    environment:
+      - NODE_ENV=production
+      - CERAMIC_RECON_MODE=true
+      - CERAMIC_ADMIN_DIDS="*"
+    depends_on:
+      - ceramic-one

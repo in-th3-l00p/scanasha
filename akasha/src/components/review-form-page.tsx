@@ -6,11 +6,16 @@ import { Typography } from './ui/typography';
 import { useNavigate } from '@tanstack/react-router';
 import { Alert, AlertTitle, AlertDescription } from './ui/alert';
 import { RocketIcon } from 'lucide-react';
+import { useAkashaStore } from '@akashaorg/ui-core-hooks';
 
 const ReviewFormPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const {
+    data: { authenticatedDID },
+  } = useAkashaStore();
 
   const navigate = useNavigate();
 
@@ -21,8 +26,10 @@ const ReviewFormPage = () => {
     const res = await createReview(
       reviewFormValues.contractName,
       reviewFormValues.description,
-      reviewFormValues.address
+      reviewFormValues.address,
+      authenticatedDID,
     );
+    console.log(res);
 
     setIsSubmitting(false);
 
@@ -64,7 +71,6 @@ const ReviewFormPage = () => {
         </Alert>
       )}
 
-      <p>hello world</p>
       <ReviewForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
     </>
   );

@@ -87,10 +87,10 @@ export interface Poll {
     description: string;
     address: string;
     createdAt: string;
+    status: 'pending' | 'in_progress' | 'completed';
     author: {
       id: string;
     };
-    status: 'pending' | 'in_progress' | 'completed';
   }
 
   export interface CreateReviewResponse {

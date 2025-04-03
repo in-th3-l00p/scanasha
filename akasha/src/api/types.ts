@@ -103,6 +103,50 @@ export interface Poll {
     contractIndex: EdgeNode<Contract>;
   }
 
+  export interface ContractAudit {
+    id: string;
+    author: {
+      id: string;
+    };
+    contractID: string;
+    permissionData: string;
+    auditMarkdown: string;
+    createdAt: string;
+    score: number;
+    status: string;
+  }
+
+  export interface CreateContractAuditResponse {
+    data?: {
+      createContractAudit: {
+        document: ContractAudit;
+      };
+    };
+    error?: string;
+  }
+
+  export interface ContractAuditsResponse {
+    data?: {
+      contractAuditIndex: {
+        edges: Array<{
+          node: ContractAudit;
+        }>;
+      };
+    };
+    error?: string;
+  }
+
+  export interface ContractAuditsByContractResponse {
+    data?: {
+      contractAuditIndex: {
+        edges: Array<{
+          node: ContractAudit;
+        }>;
+      };
+    };
+    error?: string;
+  }
+
   export function isPollsResponse(response: any): response is ComposeDBResponse<PollsResponse> {
     return response?.data?.pollIndex?.edges !== undefined;
   }
@@ -137,6 +181,18 @@ export interface Poll {
   
   export function isContractsResponse(response: any): response is ComposeDBResponse<ContractsResponse> {
     return response?.data?.contractIndex?.edges !== undefined;
+  }
+  
+  export function isCreateContractAuditResponse(response: any): response is ComposeDBResponse<CreateContractAuditResponse> {
+    return response?.data?.createContractAudit?.document !== undefined;
+  }
+  
+  export function isContractAuditsResponse(response: any): response is ComposeDBResponse<ContractAuditsResponse> {
+    return response?.data?.contractAuditIndex?.edges !== undefined;
+  }
+  
+  export function isContractAuditsByContractResponse(response: any): response is ComposeDBResponse<ContractAuditsByContractResponse> {
+    return response?.data?.contractAuditIndex?.edges !== undefined;
   }
   
   export function isErrorResponse(response: any): response is { error: any } {

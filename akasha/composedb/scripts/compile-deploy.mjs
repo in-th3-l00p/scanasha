@@ -79,7 +79,14 @@ const run = async () => {
             `${COMPOSITES_PATH}/03-contract.graphql`
         );
 
-        const composite = Composite.from([pollComposite, voteComposite, contractComposite]);
+        // contract audit composite
+        const contractAuditSchema = readFileSync(`${COMPOSITES_PATH}/04-contract-audit.graphql`, { encoding: 'utf8' }).replace("$CONTRACT_ID", contractComposite.modelIDs[0]);
+        const contractAuditComposite = await Composite.create({
+            ceramic,
+            schema: contractAuditSchema,
+        });
+
+        const composite = Composite.from([pollComposite, voteComposite, contractComposite, contractAuditComposite]);
 
         createDirIfNotExist(`${DEFINITION_PATH}/`);
 

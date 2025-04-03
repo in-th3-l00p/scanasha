@@ -11,6 +11,9 @@ import {
   VotesResponse,
   CreateContractResponse,
   ContractsResponse,
+  CreateContractAuditResponse,
+  ContractAuditsResponse,
+  ContractAuditsByContractResponse,
 } from './types';
 
 let composeClient: ComposeClient;
@@ -443,6 +446,305 @@ export const getContracts = async () => {
     return res;
   } catch (err) {
     console.error('Error fetching contracts', err);
+    return { error: err.message };
+  }
+};
+
+export const createContractAudit = async (
+  contractID: string,
+  permissionData: string,
+  auditMarkdown: string,
+  score: number,
+  status = 'pending',
+) => {
+  const compose = getComposeClient();
+  try {
+    const res = await compose.executeQuery<CreateContractAuditResponse>(
+      `
+      mutation CreateContractAudit($input: CreateContractAuditInput!) {
+        createContractAudit(input: $input) {
+          document {
+            id
+            contractID
+            permissionData
+            auditMarkdown
+            createdAt
+            score
+            status
+            author {
+              id
+            }
+          }
+        }
+      }
+    `,
+      {
+        input: {
+          content: {
+            contractID,
+            permissionData,
+            auditMarkdown,
+            createdAt: new Date().toISOString(),
+            score,
+            status,
+          },
+        },
+      },
+    );
+    return res;
+  } catch (err) {
+    console.error('Error creating contract audit', err);
+    return { error: err.message };
+  }
+};
+
+export const updateContractAudit = async (
+  id: string,
+  auditMarkdown?: string,
+  score?: number,
+  status?: string,
+) => {
+  const compose = getComposeClient();
+  try {
+    // Build the update object dynamically based on what's provided
+    const updateContent: {
+      auditMarkdown?: string;
+      score?: number;
+      status?: string;
+    } = {};
+    
+    if (auditMarkdown !== undefined) updateContent.auditMarkdown = auditMarkdown;
+    if (score !== undefined) updateContent.score = score;
+    if (status !== undefined) updateContent.status = status;
+    
+    const res = await compose.executeQuery(
+      `
+      mutation UpdateContractAudit($input: UpdateContractAuditInput!) {
+        updateContractAudit(input: $input) {
+          document {
+            id
+            contractID
+            permissionData
+            auditMarkdown
+            createdAt
+            score
+            status
+            author {
+              id
+            }
+          }
+        }
+      }
+    `,
+      {
+        input: {
+          id,
+          content: updateContent,
+        },
+      },
+    );
+    return res;
+  } catch (err) {
+    console.error('Error updating contract audit', err);
+    return { error: err.message };
+  }
+};
+
+export const getContractAudits = async () => {
+  const compose = getComposeClient();
+  try {
+    const res = await compose.executeQuery<ContractAuditsResponse>(`
+      query AllContractAudits {
+        contractAuditIndex(first: 100, sorting: { createdAt: DESC }) {
+          edges {
+            node {
+              id
+              contractID
+              permissionData
+              auditMarkdown
+              createdAt
+              score
+              status
+              author {
+                id
+              }
+            }
+          }
+        }
+      }
+    `);
+    return res;
+  } catch (err) {
+    console.error('Error fetching contract audits', err);
+    return { error: err.message };
+  }
+};
+
+export const getContractAuditById = async (auditId: string) => {
+  const compose = getComposeClient();
+  try {
+    const res = await compose.executeQuery(
+      `
+      query ContractAuditById($auditId: ID!) {
+        node(id: $auditId) {
+          ... on ContractAudit {
+            id
+            contractID
+            permissionData
+            auditMarkdown
+            createdAt
+            score
+            status
+            author {
+              id
+            }
+          }
+        }
+      }
+    `,
+      { auditId },
+    );
+    return res;
+  } catch (err) {
+    console.error('Error fetching contract audit by id', err);
+    return { error: err.message };
+  }
+};
+
+export const getContractAuditsByContractId = async (contractId: string) => {
+  const compose = getComposeClient();
+  try {
+    const res = await compose.executeQuery<{data: ContractAuditsByContractResponse}>(
+      `
+      query AuditsByContractId {
+        contractAuditIndex(
+          first: 100
+          filters: { where: { contractID: { equalTo: "${contractId}" } } }
+          sorting: { createdAt: DESC }
+        ) {
+          edges {
+            node {
+              id
+              contractID
+              permissionData
+              auditMarkdown
+              createdAt
+              score
+              status
+              author {
+                id
+              }
+            }
+          }
+        }
+      }
+    `);
+    return res;
+  } catch (err) {
+    console.error('Error fetching audits by contract id', err);
+    return { error: err.message };
+  }
+};
+
+export const getContractAuditsByAuthorId = async (authorId: string) => {
+  const compose = getComposeClient();
+  try {
+    const res = await compose.executeQuery(
+      `
+      query AuditsByAuthor($authorId: ID!) {
+        node(id: $authorId) {
+          ... on CeramicAccount {
+            contractAuditList(last: 100, sorting: { createdAt: DESC }) {
+              edges {
+                node {
+                  id
+                  contractID
+                  permissionData
+                  auditMarkdown
+                  createdAt
+                  score
+                  status
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+      { authorId },
+    );
+    return res;
+  } catch (err) {
+    console.error('Error fetching audits by author', err);
+    return { error: err.message };
+  }
+};
+
+export const getContractWithLatestAudit = async (contractId: string) => {
+  const compose = getComposeClient();
+  try {
+    // First get the contract details
+    const contractRes = await compose.executeQuery(
+      `
+      query ContractById($contractId: ID!) {
+        node(id: $contractId) {
+          ... on Contract {
+            id
+            contractName
+            description
+            address
+            createdAt
+            status
+            author {
+              id
+            }
+          }
+        }
+      }
+    `,
+      { contractId },
+    );
+    
+    // Then get the latest audit for this contract
+    const auditRes = await compose.executeQuery(`
+      query AuditsByContractId {
+        contractAuditIndex(
+          first: 100
+          filters: { where: { contractID: { equalTo: "${contractId}" } } }
+          sorting: { createdAt: DESC }
+        ) {
+          edges {
+            node {
+              id
+              contractID
+              permissionData
+              auditMarkdown
+              createdAt
+              score
+              status
+              author {
+                id
+              }
+            }
+          }
+        }
+      }
+    `);
+    
+    // If there are any audits, get the most recent one (should be first in DESC order)
+    let latestAudit = null;
+    if (auditRes?.data?.contractAuditIndex?.edges?.length > 0) {
+      latestAudit = auditRes.data.contractAuditIndex.edges[0].node;
+    }
+    
+    return {
+      data: {
+        contract: contractRes.data?.node,
+        latestAudit,
+      },
+    };
+  } catch (err) {
+    console.error('Error fetching contract with latest audit', err);
     return { error: err.message };
   }
 };

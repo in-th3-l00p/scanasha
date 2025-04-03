@@ -5,7 +5,7 @@ import {
   LogoTypeSource,
   MenuItemType,
 } from '@akashaorg/typings/lib/ui';
-import { routes, CREATE_REVIEW, LIST_REVIEWS } from './components/app-routes';
+import { routes, ADD_CONTRACT, LIST_CONTRACTS } from './components/app-routes';
 import getSDK from '@akashaorg/core-sdk';
 import { getComposeClient } from './api';
 
@@ -47,15 +47,15 @@ export const register = (opts: IntegrationRegistrationOptions): IAppConfig => {
       area: [MenuItemAreaType.UserAppArea],
       subRoutes: [
         {
-          label: LIST_REVIEWS,
+          label: LIST_CONTRACTS,
           index: 0,
-          route: routes[LIST_REVIEWS],
+          route: routes[LIST_CONTRACTS],
           type: MenuItemType.Internal,
         },
         {
-          label: CREATE_REVIEW,
+          label: ADD_CONTRACT,
           index: 1,
-          route: routes[CREATE_REVIEW],
+          route: routes[ADD_CONTRACT],
           type: MenuItemType.Internal,
         },
       ],

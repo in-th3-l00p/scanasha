@@ -6,11 +6,11 @@ import { useNavigate } from '@tanstack/react-router';
 import { FeedCTA } from '@/components/ui/feed-cta';
 import { useAkashaStore, useRootComponentProps } from '@akashaorg/ui-core-hooks';
 import { useCallback, useEffect, useState } from 'react';
-import { getReviews } from '@/api';
-import { Review, isReviewsResponse, isErrorResponse } from '@/api/types';
-import { ReviewCard } from './review-card';
+import { getContracts } from '@/api';
+import { Contract, isContractsResponse, isErrorResponse } from '@/api/types';
+import { ContractCard } from './contract-card';
 
-const ReviewsListPage = () => {
+const ContractsListPage = () => {
   const {
     data: { authenticatedDID },
   } = useAkashaStore();
@@ -19,13 +19,13 @@ const ReviewsListPage = () => {
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [contracts, setContracts] = useState<Contract[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchReviews = async () => {
+    const fetchContracts = async () => {
       setIsLoading(true);
-      const res = await getReviews();
+      const res = await getContracts();
       setIsLoading(false);
       
       if (isErrorResponse(res)) {
@@ -33,17 +33,17 @@ const ReviewsListPage = () => {
         return;
       }
       
-      if (isReviewsResponse(res) && res.data?.reviewIndex?.edges) {
-        setReviews(res.data.reviewIndex.edges.map(edge => edge.node));
+      if (isContractsResponse(res) && res.data?.contractIndex?.edges) {
+        setContracts(res.data.contractIndex.edges.map(edge => edge.node));
       }
     };
     
-    fetchReviews();
+    fetchContracts();
   }, []);
 
-  const handleCreateReviewClick = useCallback(() => {
+  const handleCreateContractClick = useCallback(() => {
     if (!authenticatedDID) {
-      alert('Please login to create a review');
+      alert('Please login to create a contract');
       navigateToModal({
         name: 'login',
         redrectTo: location.pathname,
@@ -52,7 +52,7 @@ const ReviewsListPage = () => {
     }
     
     navigate({
-      to: '/create-review',
+      to: '/add-contract',
     });
   }, [authenticatedDID, navigateToModal, navigate]);
 
@@ -61,10 +61,10 @@ const ReviewsListPage = () => {
       <FeedCTA
         avatarSrc="https://github.com/akashaorg.png"
         profileDID={authenticatedDID}
-        cta="Start a smart contract review to ensure its security and reliability!"
+        cta="Start a smart contract to ensure its security and reliability!"
       >
-        <Button size="sm" onClick={handleCreateReviewClick}>
-          Create Review
+        <Button size="sm" onClick={handleCreateContractClick}>
+          Add Contract
         </Button>
       </FeedCTA>
       
@@ -72,7 +72,7 @@ const ReviewsListPage = () => {
         <Card>
           <CardContent className="p-6">
             <Typography variant="sm" bold>
-              Loading reviews...
+              Loading contracts...
             </Typography>
           </CardContent>
         </Card>
@@ -82,37 +82,37 @@ const ReviewsListPage = () => {
         <Card className="bg-destructive/10">
           <CardContent className="p-6">
             <Typography variant="sm" bold>
-              Error loading reviews: {error}
+              Error loading contracts: {error}
             </Typography>
           </CardContent>
         </Card>
       )}
       
-      {!isLoading && !error && reviews.length === 0 && (
+      {!isLoading && !error && contracts.length === 0 && (
         <Card>
           <CardContent className="p-6">
             <Typography variant="h4" className="mb-4">
-              Smart Contract Reviews
+              Smart Contracts
             </Typography>
             
             <Typography variant="sm">
-              No reviews found. Start by creating a review for a smart contract!
+              No contracts found. Start by creating a contract!
             </Typography>
           </CardContent>
         </Card>
       )}
 
-      {reviews.map(review => (
-        <ReviewCard
-          key={review.id}
-          reviewId={review.id}
-          contractName={review.contractName}
-          description={review.description}
-          address={review.address}
-          status={review.status as 'pending' | 'in_progress' | 'completed'}
-          authorDID={review.author.id}
-          publishedAt={`${new Date(review.createdAt).toDateString()} - ${new Date(
-            review.createdAt
+      {contracts.map(contract => (
+        <ContractCard
+          key={contract.id}
+          contractId={contract.id}
+          contractName={contract.contractName}
+          description={contract.description}
+          address={contract.address}
+          status={contract.status as 'pending' | 'in_progress' | 'completed'}
+          authorDID={contract.author.id}
+          publishedAt={`${new Date(contract.createdAt).toDateString()} - ${new Date(
+            contract.createdAt
           ).toLocaleTimeString()}`}
         />
       ))}
@@ -120,4 +120,4 @@ const ReviewsListPage = () => {
   );
 };
 
-export default ReviewsListPage; 
+export default ContractsListPage; 

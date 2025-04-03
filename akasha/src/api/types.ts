@@ -81,7 +81,7 @@ export interface Poll {
     pollsWithVotes: PollWithVotes[];
   }
 
-  export interface Review {
+  export interface Contract {
     id: string;
     contractName: string;
     description: string;
@@ -93,14 +93,14 @@ export interface Poll {
     };
   }
 
-  export interface CreateReviewResponse {
-    createReview: {
-      document: Review;
+  export interface CreateContractResponse {
+    createContract: {
+      document: Contract;
     };
   }
 
-  export interface ReviewsResponse {
-    reviewIndex: EdgeNode<Review>;
+  export interface ContractsResponse {
+    contractIndex: EdgeNode<Contract>;
   }
 
   export function isPollsResponse(response: any): response is ComposeDBResponse<PollsResponse> {
@@ -131,12 +131,12 @@ export interface Poll {
     return response?.data?.pollsWithVotes !== undefined;
   }
   
-  export function isCreateReviewResponse(response: any): response is ComposeDBResponse<CreateReviewResponse> {
-    return response?.data?.createReview?.document !== undefined;
+  export function isCreateContractResponse(response: any): response is ComposeDBResponse<CreateContractResponse> {
+    return response?.data?.createContract?.document !== undefined;
   }
   
-  export function isReviewsResponse(response: any): response is ComposeDBResponse<ReviewsResponse> {
-    return response?.data?.reviewIndex?.edges !== undefined;
+  export function isContractsResponse(response: any): response is ComposeDBResponse<ContractsResponse> {
+    return response?.data?.contractIndex?.edges !== undefined;
   }
   
   export function isErrorResponse(response: any): response is { error: any } {

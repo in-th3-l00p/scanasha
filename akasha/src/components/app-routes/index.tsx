@@ -7,15 +7,15 @@ import {
   redirect,
 } from '@tanstack/react-router';
 import { ICreateRouter } from '@akashaorg/typings/lib/ui';
-import ReviewsListPage from '../reviews-list-page';
-import ReviewFormPage from '../review-form-page';
+import ContractsListPage from '../contract-list-page';
+import ContractFormPage from '../contract-form-page';
 
-const CREATE_REVIEW = 'Create review';
-const LIST_REVIEWS = 'List reviews';
+const ADD_CONTRACT = 'Add contract';
+const LIST_CONTRACTS = 'List contracts';
 
 const routes = {
-  [CREATE_REVIEW]: '/create-review',
-  [LIST_REVIEWS]: '/reviews',
+  [ADD_CONTRACT]: '/add-contract',
+  [LIST_CONTRACTS]: '/contracts',
 } as const;
 
 const rootRoute = createRootRoute({
@@ -27,35 +27,35 @@ const defaultRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   beforeLoad: () => {
-    throw redirect({ to: routes[LIST_REVIEWS], replace: true });
+    throw redirect({ to: routes[LIST_CONTRACTS], replace: true });
   },
 });
 
-const listReviewsRoute = createRoute({
+const listContractsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: routes[LIST_REVIEWS],
+  path: routes[LIST_CONTRACTS],
   component: () => {
     return (
       <CatchBoundary
-        getResetKey={() => 'reviews_reset'}
+        getResetKey={() => 'contracts_reset'}
         errorComponent={() => <div>Not found</div>}
       >
-        <ReviewsListPage />
+        <ContractsListPage />
       </CatchBoundary>
     );
   },
 });
 
-const createReviewRoute = createRoute({
+const addContractRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: routes[CREATE_REVIEW],
+  path: routes[ADD_CONTRACT],
   component: () => {
     return (
       <CatchBoundary
-        getResetKey={() => 'create_review_reset'}
+        getResetKey={() => 'add_contract_reset'}
         errorComponent={() => <div>Not found</div>}
       >
-        <ReviewFormPage />
+        <ContractFormPage />
       </CatchBoundary>
     );
   },
@@ -63,8 +63,8 @@ const createReviewRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   defaultRoute, 
-  listReviewsRoute,
-  createReviewRoute
+  listContractsRoute,
+  addContractRoute
 ]);
 
 const router = ({ baseRouteName, apolloClient }: ICreateRouter) =>
@@ -74,4 +74,4 @@ const router = ({ baseRouteName, apolloClient }: ICreateRouter) =>
     defaultErrorComponent: ({ error }) => <div>Error: {error.message}</div>,
   });
 
-export { routes, router, CREATE_REVIEW, LIST_REVIEWS };
+export { routes, router, ADD_CONTRACT, LIST_CONTRACTS };

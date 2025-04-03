@@ -73,13 +73,13 @@ const run = async () => {
             schema: voteSchema,
         });
 
-        // review composite
-        const reviewComposite = await createComposite(
+        // contract composite
+        const contractComposite = await createComposite(
             ceramic,
-            `${COMPOSITES_PATH}/03-review.graphql`
+            `${COMPOSITES_PATH}/03-contract.graphql`
         );
 
-        const composite = Composite.from([pollComposite, voteComposite, reviewComposite]);
+        const composite = Composite.from([pollComposite, voteComposite, contractComposite]);
 
         createDirIfNotExist(`${DEFINITION_PATH}/`);
 

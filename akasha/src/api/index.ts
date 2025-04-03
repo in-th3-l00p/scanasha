@@ -9,8 +9,8 @@ import {
   Vote,
   VotesByVoterResponse,
   VotesResponse,
-  CreateReviewResponse,
-  ReviewsResponse,
+  CreateContractResponse,
+  ContractsResponse,
 } from './types';
 
 let composeClient: ComposeClient;
@@ -372,7 +372,7 @@ export const getVotesByPollId = async (pollId: string) => {
   }
 };
 
-export const createReview = async (
+export const createContract = async (
   contractName: string,
   description: string,
   address: string,
@@ -381,10 +381,10 @@ export const createReview = async (
   console.log(authenticatedDID);
   const compose = getComposeClient();
   try {
-    const res = await compose.executeQuery<CreateReviewResponse>(
+    const res = await compose.executeQuery<CreateContractResponse>(
       `
-      mutation CreateReview($input: CreateReviewInput!) {
-        createReview(input: $input) {
+      mutation CreateContract($input: CreateContractInput!) {
+        createContract(input: $input) {
           document {
             id
             contractName
@@ -413,17 +413,17 @@ export const createReview = async (
     );
     return res;
   } catch (err) {
-    console.error('Error creating review', err);
+    console.error('Error creating contract', err);
     return { error: err.message };
   }
 };
 
-export const getReviews = async () => {
+export const getContracts = async () => {
   const compose = getComposeClient();
   try {
-    const res = await compose.executeQuery<ReviewsResponse>(`
-      query AllReviews {
-        reviewIndex(first: 100, sorting: { createdAt: DESC }) {
+    const res = await compose.executeQuery<ContractsResponse>(`
+      query AllContracts {
+        contractIndex(first: 100, sorting: { createdAt: DESC }) {
           edges {
             node {
               id
@@ -442,7 +442,7 @@ export const getReviews = async () => {
     `);
     return res;
   } catch (err) {
-    console.error('Error fetching reviews', err);
+    console.error('Error fetching contracts', err);
     return { error: err.message };
   }
 };

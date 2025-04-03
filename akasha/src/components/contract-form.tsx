@@ -35,20 +35,20 @@ const FormSchema = z.object({
     }),
 });
 
-type ReviewFormProps = {
+type ContractFormProps = {
   onSubmit?: SubmitHandler<z.infer<typeof FormSchema>>;
   hideSubmitButton?: boolean;
   isSubmitting?: boolean;
 };
 
-export type ReviewHandlerRefType = {
+export type ContractHandlerRefType = {
   getFormValues: () => Promise<z.infer<typeof FormSchema> | null>;
 };
 
-const ReviewForm = forwardRef<ReviewHandlerRefType, ReviewFormProps>(
+const ContractForm = forwardRef<ContractHandlerRefType, ContractFormProps>(
   (
-    { onSubmit, hideSubmitButton, isSubmitting }: ReviewFormProps,
-    ref: ForwardedRef<ReviewHandlerRefType>,
+    { onSubmit, hideSubmitButton, isSubmitting }: ContractFormProps,
+    ref: ForwardedRef<ContractHandlerRefType>,
   ) => {
     const formRef = React.useRef<HTMLFormElement>();
 
@@ -78,7 +78,7 @@ const ReviewForm = forwardRef<ReviewHandlerRefType, ReviewFormProps>(
     return (
       <Card className="bg-nested-card rounded-3xl">
         <Stack direction="column" spacing={4}>
-          <Typography variant="h5">Create Smart Contract Review</Typography>
+          <Typography variant="h5">Add a contract to be reviewed</Typography>
           <Form {...form}>
             <form
               onSubmit={onSubmit ? form.handleSubmit(onSubmit) : undefined}
@@ -132,7 +132,7 @@ const ReviewForm = forwardRef<ReviewHandlerRefType, ReviewFormProps>(
 
               {!hideSubmitButton && (
                 <Button type="submit" className="self-end w-full" disabled={isSubmitting}>
-                  Start Review Process
+                  Add Contract
                 </Button>
               )}
             </form>
@@ -143,4 +143,4 @@ const ReviewForm = forwardRef<ReviewHandlerRefType, ReviewFormProps>(
   },
 );
 
-export default ReviewForm; 
+export default ContractForm; 

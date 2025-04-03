@@ -1,5 +1,5 @@
-type Review
-  @createModel(accountRelation: LIST, description: "A Smart Contract Review")
+type Contract
+  @createModel(accountRelation: LIST, description: "A Smart Contract")
   @createIndex(fields: [{ path: "createdAt" }]) {
   author: DID! @documentAccount
   contractName: String! @string(minLength: 3, maxLength: 100)

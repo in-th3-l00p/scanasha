@@ -12,8 +12,8 @@ const statusColors = {
   completed: 'bg-green-500/10 text-green-500 border-green-500/50',
 };
 
-const ReviewCard = ({
-  reviewId,
+const ContractCard = ({
+  contractId,
   contractName,
   description,
   address,
@@ -22,7 +22,7 @@ const ReviewCard = ({
   publishedAt,
 }: Omit<
   React.ComponentProps<typeof ContentCard> & {
-    reviewId: string;
+    contractId: string;
     contractName: string;
     description: string;
     address: string;
@@ -77,4 +77,4 @@ const ReviewCard = ({
   );
 };
 
-export { ReviewCard }; 
+export { ContractCard }; 

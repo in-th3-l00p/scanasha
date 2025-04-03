@@ -9,6 +9,8 @@ import {
   Vote,
   VotesByVoterResponse,
   VotesResponse,
+  CreateReviewResponse,
+  ReviewsResponse,
 } from './types';
 
 let composeClient: ComposeClient;
@@ -368,6 +370,76 @@ export const getVotesByPollId = async (pollId: string) => {
     return res;
   } catch (err) {
     console.error('Error fetching votes by poll id', err);
+    return { error: err.message };
+  }
+};
+
+export const createReview = async (
+  contractName: string,
+  description: string,
+  address: string,
+) => {
+  const compose = getComposeClient();
+  try {
+    const res = await compose.executeQuery<CreateReviewResponse>(
+      `
+      mutation CreateReview($input: CreateReviewInput!) {
+        createReview(input: $input) {
+          document {
+            id
+            contractName
+            description
+            address
+            createdAt
+            status
+          }
+        }
+      }
+    `,
+      {
+        input: {
+          content: {
+            contractName,
+            description,
+            address,
+            createdAt: new Date().toISOString(),
+            status: 'pending',
+          },
+        },
+      },
+    );
+    return res;
+  } catch (err) {
+    console.error('Error creating review', err);
+    return { error: err.message };
+  }
+};
+
+export const getReviews = async () => {
+  const compose = getComposeClient();
+  try {
+    const res = await compose.executeQuery<ReviewsResponse>(`
+      query AllReviews {
+        reviewIndex(first: 100, sorting: { createdAt: DESC }) {
+          edges {
+            node {
+              id
+              contractName
+              address
+              description
+              status
+              createdAt
+              author {
+                id
+              }
+            }
+          }
+        }
+      }
+    `);
+    return res;
+  } catch (err) {
+    console.error('Error fetching reviews', err);
     return { error: err.message };
   }
 };

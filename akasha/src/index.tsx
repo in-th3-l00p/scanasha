@@ -5,11 +5,9 @@ import {
   LogoTypeSource,
   MenuItemType,
 } from '@akashaorg/typings/lib/ui';
-import { POLLS, routes } from './components/app-routes';
-import { SquareCheck } from 'lucide-react';
+import { routes, CREATE_REVIEW, LIST_REVIEWS } from './components/app-routes';
 import getSDK from '@akashaorg/core-sdk';
 import { getComposeClient } from './api';
-import { POLL_EDITOR } from './components/app-routes';
 
 /**
  * Changes in this file requires a full reload in the browser!
@@ -49,27 +47,20 @@ export const register = (opts: IntegrationRegistrationOptions): IAppConfig => {
       area: [MenuItemAreaType.UserAppArea],
       subRoutes: [
         {
-          label: POLLS,
+          label: LIST_REVIEWS,
           index: 0,
-          route: routes[POLLS],
+          route: routes[LIST_REVIEWS],
           type: MenuItemType.Internal,
         },
         {
-          label: POLL_EDITOR,
+          label: CREATE_REVIEW,
           index: 1,
-          route: routes[POLL_EDITOR],
+          route: routes[CREATE_REVIEW],
           type: MenuItemType.Internal,
         },
       ],
     },
 
-    contentBlocks: [
-      {
-        propertyType: 'poll-block',
-        icon: <SquareCheck />,
-        displayName: 'Poll block',
-        rootComponent: () => import('./extensions/poll-block'),
-      },
-    ],
+    contentBlocks: [],
   };
 };

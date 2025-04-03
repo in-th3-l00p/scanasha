@@ -81,6 +81,28 @@ export interface Poll {
     pollsWithVotes: PollWithVotes[];
   }
 
+  export interface Review {
+    id: string;
+    contractName: string;
+    description: string;
+    address: string;
+    createdAt: string;
+    author: {
+      id: string;
+    };
+    status: 'pending' | 'in_progress' | 'completed';
+  }
+
+  export interface CreateReviewResponse {
+    createReview: {
+      document: Review;
+    };
+  }
+
+  export interface ReviewsResponse {
+    reviewIndex: EdgeNode<Review>;
+  }
+
   export function isPollsResponse(response: any): response is ComposeDBResponse<PollsResponse> {
     return response?.data?.pollIndex?.edges !== undefined;
   }
@@ -107,6 +129,14 @@ export interface Poll {
   
   export function isPollsWithVotesResponse(response: any): response is ComposeDBResponse<PollsWithVotesResponse> {
     return response?.data?.pollsWithVotes !== undefined;
+  }
+  
+  export function isCreateReviewResponse(response: any): response is ComposeDBResponse<CreateReviewResponse> {
+    return response?.data?.createReview?.document !== undefined;
+  }
+  
+  export function isReviewsResponse(response: any): response is ComposeDBResponse<ReviewsResponse> {
+    return response?.data?.reviewIndex?.edges !== undefined;
   }
   
   export function isErrorResponse(response: any): response is { error: any } {

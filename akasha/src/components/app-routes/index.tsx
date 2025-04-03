@@ -7,15 +7,15 @@ import {
   redirect,
 } from '@tanstack/react-router';
 import { ICreateRouter } from '@akashaorg/typings/lib/ui';
-import PollPage from '../poll-page';
-import PollFormPage from '../poll-form-page';
+import ReviewsListPage from '../reviews-list-page';
+import ReviewFormPage from '../review-form-page';
 
-const POLL_EDITOR = 'Poll editor';
-const POLLS = 'Polls';
+const CREATE_REVIEW = 'Create review';
+const LIST_REVIEWS = 'List reviews';
 
 const routes = {
-  [POLL_EDITOR]: '/poll-editor',
-  [POLLS]: '/polls',
+  [CREATE_REVIEW]: '/create-review',
+  [LIST_REVIEWS]: '/reviews',
 } as const;
 
 const rootRoute = createRootRoute({
@@ -27,38 +27,45 @@ const defaultRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   beforeLoad: () => {
-    throw redirect({ to: routes[POLLS], replace: true });
+    throw redirect({ to: routes[LIST_REVIEWS], replace: true });
   },
 });
 
-const pollsRoute = createRoute({
+const listReviewsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: routes[POLLS],
-  component: () => {
-    return (
-      <CatchBoundary getResetKey={() => 'polls_reset'} errorComponent={() => <div>Not found</div>}>
-        <PollPage />
-      </CatchBoundary>
-    );
-  },
-});
-
-const pollEditorRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: routes[POLL_EDITOR],
+  path: routes[LIST_REVIEWS],
   component: () => {
     return (
       <CatchBoundary
-        getResetKey={() => 'polls_form_reset'}
+        getResetKey={() => 'reviews_reset'}
         errorComponent={() => <div>Not found</div>}
       >
-        <PollFormPage />
+        <ReviewsListPage />
       </CatchBoundary>
     );
   },
 });
 
-const routeTree = rootRoute.addChildren([defaultRoute, pollsRoute, pollEditorRoute]);
+const createReviewRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: routes[CREATE_REVIEW],
+  component: () => {
+    return (
+      <CatchBoundary
+        getResetKey={() => 'create_review_reset'}
+        errorComponent={() => <div>Not found</div>}
+      >
+        <ReviewFormPage />
+      </CatchBoundary>
+    );
+  },
+});
+
+const routeTree = rootRoute.addChildren([
+  defaultRoute, 
+  listReviewsRoute,
+  createReviewRoute
+]);
 
 const router = ({ baseRouteName, apolloClient }: ICreateRouter) =>
   createRouter({
@@ -67,4 +74,4 @@ const router = ({ baseRouteName, apolloClient }: ICreateRouter) =>
     defaultErrorComponent: ({ error }) => <div>Error: {error.message}</div>,
   });
 
-export { routes, router, POLL_EDITOR, POLLS };
+export { routes, router, CREATE_REVIEW, LIST_REVIEWS };

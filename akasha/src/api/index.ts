@@ -881,7 +881,7 @@ export const scanContract = async (contractName: string, contractAddress: string
   { data: any; error?: never } | { data?: never; error: string }
 > => {
   try {
-    const response = await fetch('https://localhost:3002/scan', {
+    const response = await fetch('https://localhost/api/permissions/scan', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

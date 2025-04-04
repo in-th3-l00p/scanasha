@@ -38,8 +38,6 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./audit-engine/.env
-    ports:
-      - '3001:3001'
     volumes:
       - ./audit-engine:/app
       - /app/node_modules
@@ -51,8 +49,6 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./intel-scraper/.env
-    ports:
-      - '3000:3000'
     volumes:
       - ./intel-scraper:/app
       - /app/node_modules
@@ -62,9 +58,21 @@ services:
     build:
       context: ./permission-scanner
       dockerfile: Dockerfile
-    ports:
-      - '3002:3002'
     volumes:
       - ./permission-scanner:/app
     environment:
       - PYTHONUNBUFFERED=1 
+
+  # Nginx Reverse Proxy with HTTPS
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '443:443'
+      - '80:80'
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - intel-scraper
+      - audit-engine
+      - permission-scanner 

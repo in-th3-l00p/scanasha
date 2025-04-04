@@ -88,6 +88,9 @@ export interface Poll {
     address: string;
     createdAt: string;
     status: 'pending' | 'in_progress' | 'completed';
+    permissionData?: string;
+    auditMarkdown?: string;
+    score?: number;
     author: {
       id: string;
     };
@@ -95,6 +98,12 @@ export interface Poll {
 
   export interface CreateContractResponse {
     createContract: {
+      document: Contract;
+    };
+  }
+
+  export interface UpdateContractResponse {
+    updateContract: {
       document: Contract;
     };
   }
@@ -197,4 +206,12 @@ export interface Poll {
   
   export function isErrorResponse(response: any): response is { error: any } {
     return response?.error !== undefined;
+  }
+
+  export function isUpdateContractResponse(response: any): response is ComposeDBResponse<UpdateContractResponse> {
+    return response?.data?.updateContract?.document !== undefined;
+  }
+
+  export function isDeleteContractResponse(response: any): response is ComposeDBResponse<{deleteContract: {document: {id: string}}}> {
+    return response?.data?.deleteContract?.document !== undefined;
   }

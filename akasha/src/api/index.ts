@@ -14,6 +14,7 @@ import {
   CreateContractAuditResponse,
   ContractAuditsResponse,
   ContractAuditsByContractResponse,
+  UpdateContractResponse,
 } from './types';
 
 let composeClient: ComposeClient;
@@ -380,10 +381,26 @@ export const createContract = async (
   description: string,
   address: string,
   authenticatedDID: string,
+  permissionData?: string,
+  auditMarkdown?: string,
+  score?: number,
 ) => {
   console.log(authenticatedDID);
   const compose = getComposeClient();
   try {
+    const content: any = {
+      contractName,
+      description,
+      address,
+      createdAt: new Date().toISOString(),
+      status: 'pending',
+    };
+    
+    // Add optional fields if provided
+    if (permissionData !== undefined) content.permissionData = permissionData;
+    if (auditMarkdown !== undefined) content.auditMarkdown = auditMarkdown;
+    if (score !== undefined) content.score = score;
+    
     const res = await compose.executeQuery<CreateContractResponse>(
       `
       mutation CreateContract($input: CreateContractInput!) {
@@ -395,6 +412,9 @@ export const createContract = async (
             address
             createdAt
             status
+            permissionData
+            auditMarkdown
+            score
             author {
               id
             }
@@ -404,13 +424,7 @@ export const createContract = async (
     `,
       {
         input: {
-          content: {
-            contractName,
-            description,
-            address,
-            createdAt: new Date().toISOString(),
-            status: 'pending',
-          },
+          content,
         },
       },
     );
@@ -435,6 +449,9 @@ export const getContracts = async () => {
               description
               status
               createdAt
+              permissionData
+              auditMarkdown
+              score
               author {
                 id
               }
@@ -695,6 +712,9 @@ export const getContractWithLatestAudit = async (contractId: string) => {
             address
             createdAt
             status
+            permissionData
+            auditMarkdown
+            score
             author {
               id
             }
@@ -745,6 +765,114 @@ export const getContractWithLatestAudit = async (contractId: string) => {
     };
   } catch (err) {
     console.error('Error fetching contract with latest audit', err);
+    return { error: err.message };
+  }
+};
+
+export const updateContract = async (
+  id: string,
+  content: {
+    contractName?: string;
+    description?: string;
+    address?: string;
+    status?: string;
+    permissionData?: string;
+    auditMarkdown?: string;
+    score?: number;
+  }
+) => {
+  const compose = getComposeClient();
+  try {
+    const res = await compose.executeQuery<UpdateContractResponse>(
+      `
+      mutation UpdateContract($input: UpdateContractInput!) {
+        updateContract(input: $input) {
+          document {
+            id
+            contractName
+            description
+            address
+            createdAt
+            status
+            permissionData
+            auditMarkdown
+            score
+            author {
+              id
+            }
+          }
+        }
+      }
+    `,
+      {
+        input: {
+          id,
+          content,
+        },
+      }
+    );
+    return res;
+  } catch (err) {
+    console.error('Error updating contract', err);
+    return { error: err.message };
+  }
+};
+
+export const deleteContract = async (id: string) => {
+  const compose = getComposeClient();
+  try {
+    const res = await compose.executeQuery(
+      `
+      mutation DeleteContract($input: DeleteContractInput!) {
+        deleteContract(input: $input) {
+          document {
+            id
+          }
+        }
+      }
+    `,
+      {
+        input: {
+          id,
+        },
+      }
+    );
+    return res;
+  } catch (err) {
+    console.error('Error deleting contract', err);
+    return { error: err.message };
+  }
+};
+
+export const getContractById = async (contractId: string) => {
+  const compose = getComposeClient();
+  try {
+    const res = await compose.executeQuery(
+      `
+      query ContractById($contractId: ID!) {
+        node(id: $contractId) {
+          ... on Contract {
+            id
+            contractName
+            description
+            address
+            createdAt
+            status
+            permissionData
+            auditMarkdown
+            score
+            author {
+              id
+            }
+          }
+        }
+      }
+    `,
+      { contractId }
+    );
+    return res;
+  } catch (err) {
+    console.error('Error fetching contract by id', err);
     return { error: err.message };
   }
 };

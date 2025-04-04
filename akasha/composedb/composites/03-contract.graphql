@@ -6,5 +6,8 @@ type Contract
   description: String @string(minLength: 5, maxLength: 500)
   address: String! @string(minLength: 42, maxLength: 42)
   createdAt: DateTime!
-  status: String! @string(minLength: 5, maxLength: 20)
+  permissionData: String @string(maxLength: 1000000)
+  auditMarkdown: String @string(maxLength: 1000000)
+  score: Int @int(min: 0, max: 100)
+  status: String @string(minLength: 3, maxLength: 20)
 } 

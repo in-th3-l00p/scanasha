@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '
 import { Typography } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 interface ContractMarkdownPreviewDialogProps {
   open: boolean;
@@ -45,15 +46,39 @@ export const ContractMarkdownPreviewDialog: React.FC<ContractMarkdownPreviewDial
           </DialogTitle>
         </DialogHeader>
         
-        <div className="py-4 overflow-auto prose dark:prose-invert">
-          {/* 
-            Render markdown content. Since we don't have a specific markdown library installed,
-            we'll use a pre-formatted element for now. In a real app, you'd use a markdown renderer
-            like react-markdown or remark/rehype.
-          */}
-          <pre className="whitespace-pre-wrap font-mono text-sm bg-muted/20 p-4 rounded-md overflow-auto">
-            {markdown}
-          </pre>
+        <div className="py-4 overflow-auto">
+          <div className="text-white markdown-content">
+            <ReactMarkdown components={{
+              h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-6 mb-4" {...props} />,
+              h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-5 mb-3" {...props} />,
+              h3: ({ node, ...props }) => <h3 className="text-lg font-bold mt-4 mb-2" {...props} />,
+              h4: ({ node, ...props }) => <h4 className="text-base font-bold mt-3 mb-2" {...props} />,
+              h5: ({ node, ...props }) => <h5 className="text-sm font-bold mt-2 mb-1" {...props} />,
+              h6: ({ node, ...props }) => <h6 className="text-xs font-bold mt-2 mb-1" {...props} />,
+              p: ({ node, ...props }) => <p className="my-3" {...props} />,
+              ul: ({ node, ...props }) => <ul className="list-disc pl-6 my-3" {...props} />,
+              ol: ({ node, ...props }) => <ol className="list-decimal pl-6 my-3" {...props} />,
+              li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+              a: ({ node, ...props }) => <a className="text-blue-400 hover:text-blue-300 hover:underline" {...props} />,
+              blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-gray-500 pl-4 my-4 italic" {...props} />,
+              code: ({ inline, className, children, ...props }: any) => 
+                inline 
+                  ? <code className="bg-gray-800 rounded px-1 py-0.5 text-sm text-orange-400" {...props}>{children}</code>
+                  : <code className="block bg-gray-800 rounded p-0 text-sm" {...props}>{children}</code>,
+              pre: ({ node, ...props }) => <pre className="bg-gray-800 rounded p-3 my-4 overflow-auto text-sm border border-gray-700" {...props} />,
+              table: ({ node, ...props }) => <table className="border-collapse my-4 w-full" {...props} />,
+              thead: ({ node, ...props }) => <thead className="bg-gray-800" {...props} />,
+              th: ({ node, ...props }) => <th className="border border-gray-700 px-4 py-2 text-left" {...props} />,
+              td: ({ node, ...props }) => <td className="border border-gray-700 px-4 py-2" {...props} />,
+              hr: ({ node, ...props }) => <hr className="my-6 border-gray-700" {...props} />,
+              img: ({ node, ...props }) => <img className="max-w-full h-auto my-4 rounded" {...props} />,
+              strong: ({ node, ...props }) => <strong className="font-bold" {...props} />,
+              em: ({ node, ...props }) => <em className="italic" {...props} />,
+              del: ({ node, ...props }) => <del className="line-through" {...props} />,
+            }}>
+              {markdown}
+            </ReactMarkdown>
+          </div>
         </div>
 
         <DialogFooter>

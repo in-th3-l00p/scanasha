@@ -17,6 +17,7 @@ eth-rlp==1.0.1
 eth-typing==4.4.0
 eth-utils==4.1.1
 eth_abi==5.1.0
+flask==3.0.3
 frozenlist==1.4.1
 hexbytes==0.3.1
 idna==3.8
@@ -45,4 +46,5 @@ urllib3==2.2.2
 wcwidth==0.2.13
 web3==6.20.3
 websockets==13.0.1
+werkzeug==3.0.3
 yarl==1.17.1

@@ -452,6 +452,11 @@ export const getContracts = async () => {
               permissionData
               auditMarkdown
               score
+              metricsData
+              autonomyMetric
+              exitwindowMetric
+              chainMetric
+              upgradeabilityMetric
               author {
                 id
               }

@@ -28,6 +28,16 @@ export interface ContractAuditDialogProps {
   onGenerateAuditMarkdown: () => void;
   isGeneratingPermissionData?: boolean;
   isGeneratingAuditMarkdown?: boolean;
+  metrics?: {
+    autonomy: number;
+    exitwindow: number;
+    chain: number;
+    upgradeability: number;
+  };
+  autonomyMetric: number;
+  exitwindowMetric: number;
+  chainMetric: number;
+  upgradeabilityMetric: number;
 }
 
 export const ContractAuditDialog: React.FC<ContractAuditDialogProps> = ({
@@ -35,6 +45,11 @@ export const ContractAuditDialog: React.FC<ContractAuditDialogProps> = ({
   onOpenChange,
   contract,
   auditData = { permissionData: null, auditMarkdown: null, metricsData: null },
+  metrics,
+  autonomyMetric,
+  exitwindowMetric,
+  chainMetric,
+  upgradeabilityMetric,
   onGeneratePermissionData,
   onGenerateAuditMarkdown,
   isGeneratingPermissionData = false,
@@ -192,7 +207,11 @@ export const ContractAuditDialog: React.FC<ContractAuditDialogProps> = ({
           onOpenChange={setMarkdownPreviewOpen}
           markdown={auditData.auditMarkdown}
           contractName={contract.contractName}
-          metricsData={auditData.metricsData || contract.metricsData}
+          metricsData={metrics}
+          autonomyMetric={autonomyMetric}
+          exitwindowMetric={exitwindowMetric}
+          chainMetric={chainMetric}
+          upgradeabilityMetric={upgradeabilityMetric}
         />
       )}
     </>

@@ -22,6 +22,8 @@ const ContractsListPage = () => {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  console.log(contracts);
+
   useEffect(() => {
     const fetchContracts = async () => {
       setIsLoading(true);
@@ -114,6 +116,11 @@ const ContractsListPage = () => {
           publishedAt={`${new Date(contract.createdAt).toDateString()} - ${new Date(
             contract.createdAt
           ).toLocaleTimeString()}`}
+          metrics={JSON.parse(contract.metricsData || '{}')}
+          autonomyMetric={contract.autonomyMetric}
+          exitwindowMetric={contract.exitwindowMetric}
+          chainMetric={contract.chainMetric}
+          upgradeabilityMetric={contract.upgradeabilityMetric}
         />
       ))}
     </Stack>

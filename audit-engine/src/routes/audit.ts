@@ -113,13 +113,83 @@ router.post('/', async (req: Request, res: Response) => {
 
     const auditMarkdown = completion.choices[0].message.content;
     
+    // Add a separate metrics generation call
+    const metricsPrompt = `
+    You are evaluating a smart contract's security and decentralization metrics based on its permission structure.
+    
+    From the permission data and function analysis, score the following metrics from 0.0 to 1.0 (where 1.0 is best):
+    
+    1. autonomy: How autonomous is the contract? Less admin/owner intervention required means higher score.
+       Consider factors like:
+       - Number of privileged functions that require owner/admin access
+       - Presence of automated vs manual processes
+       - Reliance on centralized decision-making
+    
+    2. exitwindow: Do users have the ability to exit or withdraw their assets?
+       Consider factors like:
+       - Presence of withdrawal functions accessible to all users
+       - Lack of lock-up periods or freezing capabilities
+       - Absence of admin functions that can block withdrawals
+    
+    3. chain: Cross-chain compatibility and interoperability.
+       Consider factors like:
+       - Functions for cross-chain operations
+       - Bridge compatibility
+       - Chain-agnostic design elements
+    
+    4. upgradeability: How safely can the contract be upgraded if needed?
+       Consider factors like:
+       - Presence of proxy patterns
+       - Timelock mechanisms
+       - Multi-sig requirements for upgrades
+       - Transparency of upgrade processes
+
+    Format your response as a JSON object with these four metrics and their numeric scores.
+    Example: { "autonomy": 0.75, "exitwindow": 0.9, "chain": 0.5, "upgradeability": 0.6 }
+    `;
+    
+    const metricsCompletion = await openai.chat.completions.create({
+      model: "gpt-4-turbo-preview",
+      messages: [
+        { role: "system", content: metricsPrompt },
+        { role: "user", content: userContent }
+      ],
+      response_format: { type: "json_object" }
+    });
+    
+    // Extract and parse metrics
+    let metrics = {
+      autonomy: 0.5,
+      exitwindow: 0.5,
+      chain: 0.5,
+      upgradeability: 0.5
+    };
+    
+    try {
+      const metricsContent = metricsCompletion.choices[0].message?.content?.trim();
+      if (metricsContent) {
+        const extractedMetrics = JSON.parse(metricsContent);
+        console.log('Extracted metrics:', extractedMetrics);
+        metrics = {
+          autonomy: ensureValidMetric(extractedMetrics.autonomy),
+          exitwindow: ensureValidMetric(extractedMetrics.exitwindow),
+          chain: ensureValidMetric(extractedMetrics.chain),
+          upgradeability: ensureValidMetric(extractedMetrics.upgradeability)
+        };
+      }
+    } catch (error) {
+      console.error('Failed to parse metrics:', error);
+      // Continue with default metrics
+    }
+    
     res.json({
       success: true,
       data: {
         auditMarkdown,
         contractName: contractData.Contract_Name,
         contractAddress,
-        riskScore
+        riskScore,
+        metrics
       }
     });
   } catch (error) {
@@ -130,5 +200,13 @@ router.post('/', async (req: Request, res: Response) => {
     });
   }
 });
+
+// Helper function to ensure metrics are within 0.0 to 1.0 range
+function ensureValidMetric(value: any): number {
+  if (typeof value !== 'number' || isNaN(value)) {
+    return 0.5; // Default value
+  }
+  return Math.max(0, Math.min(1, value)); // Clamp between 0 and 1
+}
 
 export default router; 

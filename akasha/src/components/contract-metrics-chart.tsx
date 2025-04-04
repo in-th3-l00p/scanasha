@@ -11,6 +11,10 @@ export interface ContractMetrics {
 
 interface ContractMetricsChartProps {
   metrics: ContractMetrics;
+  autonomyMetric: number;
+  exitwindowMetric: number;
+  chainMetric: number;
+  upgradeabilityMetric: number;
 }
 
 // Function to determine color based on value
@@ -20,13 +24,20 @@ const getColorForValue = (value: number): string => {
   return '#f87171'; // red
 };
 
-export const ContractMetricsChart: React.FC<ContractMetricsChartProps> = ({ metrics }) => {
-  // Transform metrics object into array format for recharts
-  const data = Object.entries(metrics).map(([name, value]) => ({
-    name: name.charAt(0).toUpperCase() + name.slice(1), // Capitalize first letter
-    value,
-    fullMark: 1.0,
-  }));
+export const ContractMetricsChart: React.FC<ContractMetricsChartProps> = ({ metrics, autonomyMetric, exitwindowMetric, chainMetric, upgradeabilityMetric }) => {
+  console.log("memememetrics", metrics);
+  console.log("autonomyMetric", autonomyMetric);
+  console.log("exitwindowMetric", exitwindowMetric);
+  console.log("chainMetric", chainMetric);
+  console.log("upgradeabilityMetric", upgradeabilityMetric);
+  
+  // Create equal-sized segments for the pie chart
+  const equalData = [
+    { name: 'Autonomy', value: 1, actualValue: metrics.autonomy },
+    { name: 'Exitwindow', value: 1, actualValue: metrics.exitwindow },
+    { name: 'Chain', value: 1, actualValue: metrics.chain },
+    { name: 'Upgradeability', value: 1, actualValue: metrics.upgradeability }
+  ];
 
   return (
     <div className="flex flex-col items-center mb-8">
@@ -36,7 +47,7 @@ export const ContractMetricsChart: React.FC<ContractMetricsChartProps> = ({ metr
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={data}
+              data={equalData}
               cx="50%"
               cy="50%"
               labelLine={true}
@@ -44,19 +55,19 @@ export const ContractMetricsChart: React.FC<ContractMetricsChartProps> = ({ metr
               fill="#8884d8"
               dataKey="value"
               nameKey="name"
-              label={({ name, value }) => `${name}: ${(value * 100).toFixed(0)}%`}
+              label={({ name, actualValue }) => `${name}: ${(actualValue * 100).toFixed(0)}%`}
             >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={getColorForValue(entry.value)} />
+              {equalData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={getColorForValue(entry.actualValue)} />
               ))}
             </Pie>
-            <Tooltip formatter={(value: number) => `${(value * 100).toFixed(0)}%`} />
+            <Tooltip formatter={(value, name, props) => `${(props.payload.actualValue * 100).toFixed(0)}%`} />
             <Legend />
           </PieChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
+      <div className="grid grid-cols-2 gap-4 mt-4 text-sm text-white">
         <div className="flex items-center">
           <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#4ade80' }}></div>
           <span>Good (80-100%)</span>

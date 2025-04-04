@@ -11,7 +11,11 @@ interface ContractMarkdownPreviewDialogProps {
   onOpenChange: (open: boolean) => void;
   markdown: string;
   contractName: string;
-  metricsData?: string;
+  metricsData?: ContractMetrics;
+  autonomyMetric: number;
+  exitwindowMetric: number;
+  chainMetric: number;
+  upgradeabilityMetric: number;
 }
 
 export const ContractMarkdownPreviewDialog: React.FC<ContractMarkdownPreviewDialogProps> = ({
@@ -19,18 +23,12 @@ export const ContractMarkdownPreviewDialog: React.FC<ContractMarkdownPreviewDial
   onOpenChange,
   markdown,
   contractName,
-  metricsData
-}) => {
-  // Parse metrics data if available
-  const metrics: ContractMetrics | null = React.useMemo(() => {
-    if (!metricsData) return null;
-    try {
-      return JSON.parse(metricsData) as ContractMetrics;
-    } catch (error) {
-      console.error("Failed to parse metrics data:", error);
-      return null;
-    }
-  }, [metricsData]);
+  metricsData,
+  autonomyMetric,
+  exitwindowMetric,
+  chainMetric,
+  upgradeabilityMetric
+}) => { 
 
   const handleDownload = () => {
     // Create a blob with the markdown content
@@ -61,7 +59,7 @@ export const ContractMarkdownPreviewDialog: React.FC<ContractMarkdownPreviewDial
         </DialogHeader>
         
         <div className="py-4 overflow-auto">
-          {metrics && <ContractMetricsChart metrics={metrics} />}
+          {metricsData && <ContractMetricsChart metrics={metricsData} autonomyMetric={autonomyMetric} exitwindowMetric={exitwindowMetric} chainMetric={chainMetric} upgradeabilityMetric={upgradeabilityMetric} />}
           
           <div className="text-white markdown-content">
             <ReactMarkdown components={{

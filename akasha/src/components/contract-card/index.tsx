@@ -26,6 +26,11 @@ const ContractCard = ({
   status,
   authorDID,
   publishedAt,
+  metrics,
+  autonomyMetric,
+  exitwindowMetric,
+  chainMetric,
+  upgradeabilityMetric,
 }: Omit<
   React.ComponentProps<typeof ContentCard> & {
     contractId: string;
@@ -34,6 +39,16 @@ const ContractCard = ({
     address: string;
     status: 'pending' | 'in_progress' | 'completed';
     authorDID: string;
+    metrics: {
+      autonomy: number;
+      exitwindow: number;
+      chain: number;
+      upgradeability: number;
+    };
+    autonomyMetric: number;
+    exitwindowMetric: number;
+    chainMetric: number;
+    upgradeabilityMetric: number;
   },
   'author'
 >) => {
@@ -47,9 +62,11 @@ const ContractCard = ({
   const [auditData, setAuditData] = useState<{
     permissionData: string | null;
     auditMarkdown: string | null;
+    metricsData: string | null;
   }>({
     permissionData: null,
     auditMarkdown: null,
+    metricsData: null,
   });
 
   const {
@@ -162,7 +179,8 @@ const ContractCard = ({
         // Update auditData state with data from the contract
         setAuditData({
           permissionData: contract.permissionData || null,
-          auditMarkdown: contract.auditMarkdown || null
+          auditMarkdown: contract.auditMarkdown || null,
+          metricsData: contract.metricsData || null
         });
         
         setEditDialogOpen(true);
@@ -178,7 +196,6 @@ const ContractCard = ({
     setIsLoadingContract(true);
     try {
       const response = await getContractById(contractId);
-      console.log(response);
       // Check if the response contains an error
       if (isErrorResponse(response)) {
         throw new Error(response.error);
@@ -190,7 +207,8 @@ const ContractCard = ({
         // Update auditData state with data from the contract
         setAuditData({
           permissionData: contract.permissionData || null,
-          auditMarkdown: contract.auditMarkdown || null
+          auditMarkdown: contract.auditMarkdown || null,
+          metricsData: contract.metricsData || null
         });
         
         setAuditDialogOpen(true);
@@ -270,6 +288,11 @@ const ContractCard = ({
           status,
         }}
         auditData={auditData}
+        metrics={metrics}
+        autonomyMetric={autonomyMetric}
+        exitwindowMetric={exitwindowMetric}
+        chainMetric={chainMetric}
+        upgradeabilityMetric={upgradeabilityMetric}
         onGeneratePermissionData={handleGeneratePermissionData}
         onGenerateAuditMarkdown={handleGenerateAuditMarkdown}
         isGeneratingPermissionData={isGeneratingPermissionData}

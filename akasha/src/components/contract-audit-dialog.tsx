@@ -17,10 +17,12 @@ export interface ContractAuditDialogProps {
     address: string;
     description: string;
     status: string;
+    metricsData?: string;
   };
   auditData?: {
     permissionData: string | null;
     auditMarkdown: string | null;
+    metricsData?: string | null;
   };
   onGeneratePermissionData: () => void;
   onGenerateAuditMarkdown: () => void;
@@ -32,7 +34,7 @@ export const ContractAuditDialog: React.FC<ContractAuditDialogProps> = ({
   open,
   onOpenChange,
   contract,
-  auditData = { permissionData: null, auditMarkdown: null },
+  auditData = { permissionData: null, auditMarkdown: null, metricsData: null },
   onGeneratePermissionData,
   onGenerateAuditMarkdown,
   isGeneratingPermissionData = false,
@@ -190,6 +192,7 @@ export const ContractAuditDialog: React.FC<ContractAuditDialogProps> = ({
           onOpenChange={setMarkdownPreviewOpen}
           markdown={auditData.auditMarkdown}
           contractName={contract.contractName}
+          metricsData={auditData.metricsData || contract.metricsData}
         />
       )}
     </>

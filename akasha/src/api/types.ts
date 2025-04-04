@@ -91,6 +91,11 @@ export interface Poll {
     permissionData?: string;
     auditMarkdown?: string;
     score?: number;
+    autonomyMetric?: number;
+    exitwindowMetric?: number;
+    chainMetric?: number;
+    upgradeabilityMetric?: number;
+    metricsData?: string;
     author: {
       id: string;
     };

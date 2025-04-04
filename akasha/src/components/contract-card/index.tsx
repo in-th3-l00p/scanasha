@@ -114,8 +114,8 @@ const ContractCard = ({
         throw new Error(result.error);
       }
       
-      // At this point, we know result has data with auditMarkdown
-      const auditMarkdown = result.data.auditMarkdown;
+      // At this point, we know result has data with auditMarkdown and potentially metrics
+      const { auditMarkdown, riskScore, metrics } = result.data;
       
       // Update state with the received audit markdown
       setAuditData(prev => ({
@@ -123,10 +123,19 @@ const ContractCard = ({
         auditMarkdown
       }));
       
-      // Update the contract with the audit markdown
+      // Create metrics JSON string if metrics are provided
+      const metricsData = metrics ? JSON.stringify(metrics) : undefined;
+      
+      // Update the contract with the audit markdown and metrics
       if (contractId) {
         await updateContract(contractId, {
-          auditMarkdown
+          auditMarkdown,
+          score: riskScore,
+          autonomyMetric: metrics?.autonomy,
+          exitwindowMetric: metrics?.exitwindow,
+          chainMetric: metrics?.chain,
+          upgradeabilityMetric: metrics?.upgradeability,
+          metricsData
         });
       }
     } catch (error) {
@@ -169,7 +178,7 @@ const ContractCard = ({
     setIsLoadingContract(true);
     try {
       const response = await getContractById(contractId);
-      
+      console.log(response);
       // Check if the response contains an error
       if (isErrorResponse(response)) {
         throw new Error(response.error);

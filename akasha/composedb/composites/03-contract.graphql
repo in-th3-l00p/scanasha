@@ -10,4 +10,9 @@ type Contract
   auditMarkdown: String @string(maxLength: 1000000)
   score: Int @int(min: 0, max: 100)
   status: String @string(minLength: 3, maxLength: 20)
+  autonomyMetric: Float @float(min: 0, max: 1)
+  exitwindowMetric: Float @float(min: 0, max: 1)
+  chainMetric: Float @float(min: 0, max: 1)
+  upgradeabilityMetric: Float @float(min: 0, max: 1)
+  metricsData: String @string(maxLength: 10000)
 } 

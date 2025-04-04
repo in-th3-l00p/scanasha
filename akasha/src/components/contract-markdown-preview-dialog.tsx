@@ -4,12 +4,14 @@ import { Typography } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { ContractMetricsChart, ContractMetrics } from './contract-metrics-chart';
 
 interface ContractMarkdownPreviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   markdown: string;
   contractName: string;
+  metricsData?: string;
 }
 
 export const ContractMarkdownPreviewDialog: React.FC<ContractMarkdownPreviewDialogProps> = ({
@@ -17,7 +19,19 @@ export const ContractMarkdownPreviewDialog: React.FC<ContractMarkdownPreviewDial
   onOpenChange,
   markdown,
   contractName,
+  metricsData
 }) => {
+  // Parse metrics data if available
+  const metrics: ContractMetrics | null = React.useMemo(() => {
+    if (!metricsData) return null;
+    try {
+      return JSON.parse(metricsData) as ContractMetrics;
+    } catch (error) {
+      console.error("Failed to parse metrics data:", error);
+      return null;
+    }
+  }, [metricsData]);
+
   const handleDownload = () => {
     // Create a blob with the markdown content
     const blob = new Blob([markdown], { type: 'text/markdown' });
@@ -47,6 +61,8 @@ export const ContractMarkdownPreviewDialog: React.FC<ContractMarkdownPreviewDial
         </DialogHeader>
         
         <div className="py-4 overflow-auto">
+          {metrics && <ContractMetricsChart metrics={metrics} />}
+          
           <div className="text-white markdown-content">
             <ReactMarkdown components={{
               h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-6 mb-4" {...props} />,

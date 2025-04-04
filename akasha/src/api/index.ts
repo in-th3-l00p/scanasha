@@ -715,6 +715,11 @@ export const getContractWithLatestAudit = async (contractId: string) => {
             permissionData
             auditMarkdown
             score
+            autonomyMetric
+            exitwindowMetric
+            chainMetric
+            upgradeabilityMetric
+            metricsData
             author {
               id
             }
@@ -779,6 +784,11 @@ export const updateContract = async (
     permissionData?: string;
     auditMarkdown?: string;
     score?: number;
+    autonomyMetric?: number;
+    exitwindowMetric?: number;
+    chainMetric?: number;
+    upgradeabilityMetric?: number;
+    metricsData?: string;
   }
 ) => {
   const compose = getComposeClient();
@@ -797,6 +807,11 @@ export const updateContract = async (
             permissionData
             auditMarkdown
             score
+            autonomyMetric
+            exitwindowMetric
+            chainMetric
+            upgradeabilityMetric
+            metricsData
             author {
               id
             }
@@ -861,6 +876,11 @@ export const getContractById = async (contractId: string) => {
             permissionData
             auditMarkdown
             score
+            autonomyMetric
+            exitwindowMetric
+            chainMetric
+            upgradeabilityMetric
+            metricsData
             author {
               id
             }
@@ -905,7 +925,22 @@ export const scanContract = async (contractName: string, contractAddress: string
 };
 
 export const generateAuditReport = async (scannerData: string): Promise<
-  { data: { auditMarkdown: string }; error?: never } | { data?: never; error: string }
+  { 
+    data: { 
+      auditMarkdown: string; 
+      contractName: string;
+      contractAddress: string;
+      riskScore: number;
+      metrics?: {
+        autonomy: number;
+        exitwindow: number;
+        chain: number;
+        upgradeability: number;
+      }
+    }; 
+    error?: never 
+  } | 
+  { data?: never; error: string }
 > => {
   try {
     const response = await fetch('https://localhost/api/audit/analyze', {

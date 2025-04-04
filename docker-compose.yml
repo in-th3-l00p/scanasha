@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # Akasha services
+  ceramic-one:
+    image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:latest
+    volumes:
+      - ./akasha/data/ceramic-one:/root/.ceramic-one
+    environment:
+      - CERAMIC_ONE_BIND_ADDRESS=0.0.0.0:5001
+      - CERAMIC_ONE_CORS_ALLOW_ORIGINS=*
+      - CERAMIC_ONE_NETWORK=in-memory
+    ports:
+      - '5001:5001'
+      - '9464:9464'
+
+  ceramic:
+    image: ceramicnetwork/js-ceramic:latest
+    volumes:
+      - ./akasha/data/ceramic_daemon:/root/.ceramic
+    command: [
+      "--network=inmemory",
+      "--ipfs-api=http://ceramic-one:5001"
+    ]
+    ports:
+      - '7007:7007'
+    environment:
+      - NODE_ENV=production
+      - CERAMIC_RECON_MODE=true
+      - CERAMIC_ADMIN_DIDS="*"
+    depends_on:
+      - ceramic-one
+
+  # Audit Engine API
+  audit-engine:
+    build:
+      context: ./audit-engine
+      dockerfile: Dockerfile
+    env_file:
+      - ./audit-engine/.env
+    ports:
+      - '3001:3001'
+    volumes:
+      - ./audit-engine:/app
+      - /app/node_modules
+
+  # Intel Scraper API
+  intel-scraper:
+    build:
+      context: ./intel-scraper
+      dockerfile: Dockerfile
+    env_file:
+      - ./intel-scraper/.env
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./intel-scraper:/app
+      - /app/node_modules
+
+  # Permission Scanner API
+  permission-scanner:
+    build:
+      context: ./permission-scanner
+      dockerfile: Dockerfile
+    ports:
+      - '3002:3002'
+    volumes:
+      - ./permission-scanner:/app
+    environment:
+      - PYTHONUNBUFFERED=1 

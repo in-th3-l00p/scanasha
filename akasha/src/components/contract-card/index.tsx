@@ -6,6 +6,10 @@ import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '../ui/button';
 import { ContractAuditDialog } from '../contract-audit-dialog';
+import { ContractEditDialog } from '../contract-edit-dialog';
+import { useAkashaStore } from '@akashaorg/ui-core-hooks';
+import { getContractById } from '@/api';
+import { Contract } from '@/api/types';
 
 const statusColors = {
   pending: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/50',
@@ -34,8 +38,11 @@ const ContractCard = ({
 >) => {
   const profileDataRes = useGetProfileByDidQuery({ variables: { id: authorDID } });
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [isGeneratingPermissionData, setIsGeneratingPermissionData] = useState(false);
   const [isGeneratingAuditMarkdown, setIsGeneratingAuditMarkdown] = useState(false);
+  const [contractDetails, setContractDetails] = useState<Contract | null>(null);
+  const [isLoadingContract, setIsLoadingContract] = useState(false);
   const [auditData, setAuditData] = useState<{
     permissionData: string | null;
     auditMarkdown: string | null;
@@ -44,12 +51,20 @@ const ContractCard = ({
     auditMarkdown: null,
   });
 
+  const {
+    data: { authenticatedDID },
+  } = useAkashaStore();
+
   const author = useMemo(() => {
     if (profileDataRes.data) {
       return selectProfileData(profileDataRes.data);
     }
     return undefined;
   }, [profileDataRes]);
+
+  const isAuthor = useMemo(() => {
+    return authenticatedDID === authorDID;
+  }, [authenticatedDID, authorDID]);
 
   const handleGeneratePermissionData = async () => {
     setIsGeneratingPermissionData(true);
@@ -127,6 +142,26 @@ The contract has several high-risk permissioned functions:
     }
   };
 
+  const handleEditClick = async () => {
+    setIsLoadingContract(true);
+    try {
+      const response = await getContractById(contractId);
+      if (response.data?.node) {
+        setContractDetails(response.data.node as Contract);
+        setEditDialogOpen(true);
+      }
+    } catch (error) {
+      console.error("Error fetching contract details:", error);
+    } finally {
+      setIsLoadingContract(false);
+    }
+  };
+
+  const handleEditSuccess = () => {
+    // You could refresh the data here or implement a callback to the parent component
+    window.location.reload(); // Simple refresh for now
+  };
+
   return (
     <>
       <ContentCard
@@ -135,9 +170,14 @@ The contract has several high-risk permissioned functions:
       >
         <ContentCardBody className="flex flex-col gap-4">
           <div className="flex flex-row justify-between items-center">
-            <Typography variant="sm" bold>
-              {contractName}
-            </Typography>
+            <div className="flex items-center gap-2">
+              <Typography variant="sm" bold>
+                {contractName}
+              </Typography>
+              <Badge variant="outline" className={statusColors[status]}>
+                {status.replace('_', ' ')}
+              </Badge>
+            </div>
 
             <div className="flex gap-2">
               <Button 
@@ -147,11 +187,17 @@ The contract has several high-risk permissioned functions:
               >
                 Audit
               </Button>
-              <Button variant="outline" size="sm">
-                Edit
-              </Button>
+              {isAuthor && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleEditClick}
+                  disabled={isLoadingContract}
+                >
+                  {isLoadingContract ? 'Loading...' : 'Edit'}
+                </Button>
+              )}
             </div>
-
           </div>
           
           <Typography variant="sm">{description}</Typography>
@@ -183,6 +229,15 @@ The contract has several high-risk permissioned functions:
         isGeneratingPermissionData={isGeneratingPermissionData}
         isGeneratingAuditMarkdown={isGeneratingAuditMarkdown}
       />
+
+      {contractDetails && (
+        <ContractEditDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          contract={contractDetails}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </>
   );
 };

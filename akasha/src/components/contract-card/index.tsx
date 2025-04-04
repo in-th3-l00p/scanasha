@@ -9,7 +9,7 @@ import { ContractAuditDialog } from '../contract-audit-dialog';
 import { ContractEditDialog } from '../contract-edit-dialog';
 import { useAkashaStore } from '@akashaorg/ui-core-hooks';
 import { getContractById } from '@/api';
-import { Contract } from '@/api/types';
+import { Contract, isErrorResponse } from '@/api/types';
 import { scanContract, updateContract } from '@/api';
 
 const statusColors = {
@@ -151,9 +151,51 @@ The contract has several high-risk permissioned functions:
     setIsLoadingContract(true);
     try {
       const response = await getContractById(contractId);
+      
+      // Check if the response contains an error
+      if (isErrorResponse(response)) {
+        throw new Error(response.error);
+      }
+      
       if (response.data?.node) {
-        setContractDetails(response.data.node as Contract);
+        const contract = response.data.node as Contract;
+        setContractDetails(contract);
+        
+        // Update auditData state with data from the contract
+        setAuditData({
+          permissionData: contract.permissionData || null,
+          auditMarkdown: contract.auditMarkdown || null
+        });
+        
         setEditDialogOpen(true);
+      }
+    } catch (error) {
+      console.error("Error fetching contract details:", error);
+    } finally {
+      setIsLoadingContract(false);
+    }
+  };
+
+  const handleAuditClick = async () => {
+    setIsLoadingContract(true);
+    try {
+      const response = await getContractById(contractId);
+      
+      // Check if the response contains an error
+      if (isErrorResponse(response)) {
+        throw new Error(response.error);
+      }
+      
+      if (response.data?.node) {
+        const contract = response.data.node as Contract;
+        
+        // Update auditData state with data from the contract
+        setAuditData({
+          permissionData: contract.permissionData || null,
+          auditMarkdown: contract.auditMarkdown || null
+        });
+        
+        setAuditDialogOpen(true);
       }
     } catch (error) {
       console.error("Error fetching contract details:", error);
@@ -188,9 +230,10 @@ The contract has several high-risk permissioned functions:
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => setAuditDialogOpen(true)}
+                onClick={handleAuditClick}
+                disabled={isLoadingContract}
               >
-                Audit
+                {isLoadingContract ? 'Loading...' : 'Audit'}
               </Button>
               {isAuthor && (
                 <Button 

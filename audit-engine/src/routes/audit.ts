@@ -19,11 +19,13 @@ router.post('/generate-report', async (req: Request, res: Response) => {
     const { permissionData, contractName, contractAddress, contractDescription } = req.body;
 
     if (!permissionData) {
-      return res.status(400).json({ error: 'Permission data is required' });
+      res.status(400).json({ error: 'Permission data is required' });
+      return;
     }
 
     if (!contractName || !contractAddress) {
-      return res.status(400).json({ error: 'Contract name and address are required' });
+      res.status(400).json({ error: 'Contract name and address are required' });
+      return;
     }
 
     // Parse permission data if it's a string
@@ -33,7 +35,8 @@ router.post('/generate-report', async (req: Request, res: Response) => {
         ? JSON.parse(permissionData) 
         : permissionData;
     } catch (error) {
-      return res.status(400).json({ error: 'Invalid permission data format' });
+      res.status(400).json({ error: 'Invalid permission data format' });
+      return;
     }
 
     // Create a prompt for the OpenAI model
@@ -95,11 +98,13 @@ router.post('/analyze-permissions', async (req: Request, res: Response) => {
     const { contractAddress, contractABI } = req.body;
 
     if (!contractAddress) {
-      return res.status(400).json({ error: 'Contract address is required' });
+      res.status(400).json({ error: 'Contract address is required' });
+      return;
     }
 
     if (!contractABI) {
-      return res.status(400).json({ error: 'Contract ABI is required' });
+      res.status(400).json({ error: 'Contract ABI is required' });
+      return;
     }
 
     // In a real implementation, this would call the permission scanner
@@ -131,7 +136,7 @@ router.post('/analyze-permissions', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: {
-        permissionData: JSON.stringify(permissionData, null, 2),
+        permissionData: permissionData,
         riskScore: riskScore
       }
     });

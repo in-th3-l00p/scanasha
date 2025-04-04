@@ -8,7 +8,7 @@ const app = express();
 const port = 3001;
 
 app.use(express.json());
-app.use('/api', auditRouter);
+app.use('/analyze', auditRouter);
 
 // Basic health check endpoint
 app.get('/health', (req, res) => {

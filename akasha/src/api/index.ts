@@ -903,3 +903,33 @@ export const scanContract = async (contractName: string, contractAddress: string
     return { error: error.message };
   }
 };
+
+export const generateAuditReport = async (scannerData: string): Promise<
+  { data: { auditMarkdown: string }; error?: never } | { data?: never; error: string }
+> => {
+  try {
+    const response = await fetch('https://localhost/api/audit/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        scannerData: JSON.parse(scannerData)
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error('API returned unsuccessful response');
+    }
+    
+    return { data: data.data };
+  } catch (error) {
+    console.error('Error generating audit report:', error);
+    return { error: error.message };
+  }
+};

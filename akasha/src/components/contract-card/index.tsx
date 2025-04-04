@@ -10,7 +10,7 @@ import { ContractEditDialog } from '../contract-edit-dialog';
 import { useAkashaStore } from '@akashaorg/ui-core-hooks';
 import { getContractById } from '@/api';
 import { Contract, isErrorResponse } from '@/api/types';
-import { scanContract, updateContract } from '@/api';
+import { scanContract, updateContract, generateAuditReport } from '@/api';
 
 const statusColors = {
   pending: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/50',
@@ -103,43 +103,32 @@ const ContractCard = ({
   const handleGenerateAuditMarkdown = async () => {
     setIsGeneratingAuditMarkdown(true);
     try {
-      // Here you would call your API to generate the audit markdown
-      // const response = await yourApi.generateAuditMarkdown(contractId, auditData.permissionData);
-      // For now, let's simulate a response after 2 seconds
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      if (!auditData.permissionData) {
+        throw new Error("Permission data must be generated first");
+      }
       
-      // Mock markdown data
-      const mockMarkdown = `# Security Audit for ${contractName}
+      // Call the audit report generation API
+      const result = await generateAuditReport(auditData.permissionData);
       
-## Overview
-Address: \`${address}\`
-Risk Score: **75/100** (High Risk)
-
-## Critical Functions
-The contract has several high-risk permissioned functions:
-
-1. **transferOwnership** - Owner only
-   - Allows changing the contract owner
-   - High risk if compromised
-
-2. **withdraw** - Owner only
-   - Allows withdrawing all funds from the contract
-   - High risk of rugpull if owner keys are compromised
-
-3. **pause** - Admin only
-   - Allows pausing all contract functionality
-   - Medium risk, can affect availability
-
-## Recommendations
-- Implement time locks for ownership transfer
-- Add multi-sig requirements for withdrawals
-- Consider a DAO-based governance model
-`;
+      if ('error' in result) {
+        throw new Error(result.error);
+      }
       
+      // At this point, we know result has data with auditMarkdown
+      const auditMarkdown = result.data.auditMarkdown;
+      
+      // Update state with the received audit markdown
       setAuditData(prev => ({
         ...prev,
-        auditMarkdown: mockMarkdown
+        auditMarkdown
       }));
+      
+      // Update the contract with the audit markdown
+      if (contractId) {
+        await updateContract(contractId, {
+          auditMarkdown
+        });
+      }
     } catch (error) {
       console.error("Error generating audit markdown:", error);
     } finally {

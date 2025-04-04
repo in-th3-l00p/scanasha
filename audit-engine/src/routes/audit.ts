@@ -22,7 +22,7 @@ interface PermissionScannerData {
   };
 }
 
-router.post('/audit', async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const { scannerData, docsUrl, sourceUrl } = req.body;
 

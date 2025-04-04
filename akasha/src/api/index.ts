@@ -876,3 +876,30 @@ export const getContractById = async (contractId: string) => {
     return { error: err.message };
   }
 };
+
+export const scanContract = async (contractName: string, contractAddress: string): Promise<
+  { data: any; error?: never } | { data?: never; error: string }
+> => {
+  try {
+    const response = await fetch('https://localhost:3002/scan', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contract_name: contractName,
+        contract_address: contractAddress,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    console.error('Error scanning contract:', error);
+    return { error: error.message };
+  }
+};

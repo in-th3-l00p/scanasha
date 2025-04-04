@@ -41,6 +41,27 @@ export const ContractAuditDialog: React.FC<ContractAuditDialogProps> = ({
   const hasAuditMarkdown = !!auditData.auditMarkdown;
   const isFullyAudited = hasPermissionData && hasAuditMarkdown;
 
+  const handleDownloadPermissionData = () => {
+    if (!hasPermissionData || !auditData.permissionData) return;
+    
+    // Create a blob with the permission data
+    const blob = new Blob([auditData.permissionData], { type: 'application/json' });
+    
+    // Create a URL for the blob
+    const url = URL.createObjectURL(blob);
+    
+    // Create a temporary anchor to trigger download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${contract.contractName}_permission_data.json`;
+    document.body.appendChild(a);
+    a.click();
+    
+    // Clean up
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent onClose={() => onOpenChange(false)} className="sm:max-w-[600px]">
@@ -77,6 +98,7 @@ export const ContractAuditDialog: React.FC<ContractAuditDialogProps> = ({
                     variant="outline" 
                     size="sm"
                     disabled={!hasPermissionData}
+                    onClick={handleDownloadPermissionData}
                   >
                     <Download className="h-4 w-4 mr-1" /> Download
                   </Button>

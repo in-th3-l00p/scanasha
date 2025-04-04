@@ -10,6 +10,7 @@ import { ContractEditDialog } from '../contract-edit-dialog';
 import { useAkashaStore } from '@akashaorg/ui-core-hooks';
 import { getContractById } from '@/api';
 import { Contract } from '@/api/types';
+import { scanContract, updateContract } from '@/api';
 
 const statusColors = {
   pending: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/50',
@@ -69,25 +70,29 @@ const ContractCard = ({
   const handleGeneratePermissionData = async () => {
     setIsGeneratingPermissionData(true);
     try {
-      // Here you would call your API to generate permission data
-      // const response = await yourApi.generatePermissionData(contractId);
-      // For now, let's simulate a response after 2 seconds
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call the scanContract API function with the contract info
+      const result = await scanContract(contractName, address);
       
-      // Mock data
-      const mockPermissionData = JSON.stringify({
-        functions: [
-          { name: "transferOwnership", permissionLevel: "owner", risk: "high" },
-          { name: "withdraw", permissionLevel: "owner", risk: "high" },
-          { name: "pause", permissionLevel: "admin", risk: "medium" }
-        ],
-        riskScore: 75
-      }, null, 2);
+      if ('error' in result) {
+        throw new Error(result.error);
+      }
       
+      // At this point, we know result has data
+      // Format the response data as JSON
+      const permissionData = JSON.stringify((result as { data: any }).data, null, 2);
+      
+      // Update state with the received permission data
       setAuditData(prev => ({
         ...prev,
-        permissionData: mockPermissionData
+        permissionData
       }));
+      
+      // Update the contract with the permission data
+      if (contractId) {
+        await updateContract(contractId, {
+          permissionData
+        });
+      }
     } catch (error) {
       console.error("Error generating permission data:", error);
     } finally {

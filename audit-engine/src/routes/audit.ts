@@ -3,69 +3,105 @@ import openai from '../config/openai';
 
 const router = Router();
 
-interface PermissionFunction {
-  name: string;
-  permissionLevel: string;
-  risk: string;
+interface Function {
+  Function: string;
+  Modifiers: string[];
+  "msg.sender_conditions": string[];
+  "state_variables_read_inside_modifiers": string[];
+  "state_variables_written": string[];
 }
 
-interface PermissionData {
-  functions: PermissionFunction[];
-  riskScore: number;
+interface Contract {
+  Contract_Name: string;
+  Functions: Function[];
 }
 
-router.post('/generate-report', async (req: Request, res: Response) => {
+interface PermissionScannerData {
+  [address: string]: {
+    [contractName: string]: Contract;
+  };
+}
+
+router.post('/audit', async (req: Request, res: Response) => {
   try {
-    const { permissionData, contractName, contractAddress, contractDescription } = req.body;
+    const { scannerData, docsUrl, sourceUrl } = req.body;
 
-    if (!permissionData) {
-      res.status(400).json({ error: 'Permission data is required' });
+    if (!scannerData) {
+      res.status(400).json({ error: 'Permission scanner data is required' });
       return;
     }
 
-    if (!contractName || !contractAddress) {
-      res.status(400).json({ error: 'Contract name and address are required' });
-      return;
-    }
-
-    // Parse permission data if it's a string
-    let parsedPermissionData: PermissionData;
+    // Parse scanner data if it's a string
+    let parsedScannerData: PermissionScannerData;
     try {
-      parsedPermissionData = typeof permissionData === 'string' 
-        ? JSON.parse(permissionData) 
-        : permissionData;
+      parsedScannerData = typeof scannerData === 'string' 
+        ? JSON.parse(scannerData) 
+        : scannerData;
     } catch (error) {
-      res.status(400).json({ error: 'Invalid permission data format' });
+      res.status(400).json({ error: 'Invalid scanner data format' });
       return;
     }
+
+    // Extract contract information from the scanner data
+    const addresses = Object.keys(parsedScannerData);
+    if (addresses.length === 0) {
+      res.status(400).json({ error: 'No contract addresses found in scanner data' });
+      return;
+    }
+
+    const contractAddress = addresses[0];
+    const contractNames = Object.keys(parsedScannerData[contractAddress]);
+    if (contractNames.length === 0) {
+      res.status(400).json({ error: 'No contract names found in scanner data' });
+      return;
+    }
+
+    const contractName = contractNames[0];
+    const contractData = parsedScannerData[contractAddress][contractName];
+
+    // Calculate risk score based on the number of privileged functions
+    const privilegedFunctions = contractData.Functions.filter(
+      func => func["msg.sender_conditions"].length > 0 || func.Modifiers.length > 0
+    );
+    
+    // Simple risk scoring algorithm - can be enhanced
+    const riskScore = Math.min(10, Math.max(1, Math.ceil(privilegedFunctions.length * 1.5)));
 
     // Create a prompt for the OpenAI model
     const systemPrompt = `You are an expert DeFi security auditor analyzing a smart contract. 
     Based on the permission data provided, generate a comprehensive markdown audit report.
     
     Focus on:
-    1. Security risks of privileged functions
-    2. Potential vulnerabilities based on permission levels
-    3. Recommendations for improvements
+    1. Security risks of privileged functions with access controls
+    2. Potential vulnerabilities based on msg.sender checks and modifiers
+    3. State variables that can be modified by privileged functions
+    4. Recommendations for improvements in permission structure
     
     The report should include:
     - Title with the contract name
-    - Overview section with contract details and risk score
-    - Analysis of each critical function identified in the permission data
+    - Overview section with contract details and risk score (1-10, with 10 being highest risk)
+    - Analysis of each privileged function identified in the permission data
+    - Assessment of centralization risks
     - Clear recommendations section with actionable items
     
     Format the response in Markdown.`;
 
     // Create content with all available information
     const userContent = `
-    Contract Name: ${contractName}
+    Contract Name: ${contractData.Contract_Name}
     Contract Address: ${contractAddress}
-    Contract Description: ${contractDescription || 'Not provided'}
+    Documentation URL: ${docsUrl || 'Not provided'}
+    Source Code URL: ${sourceUrl || 'Not provided'}
     
     Permission Data:
-    ${JSON.stringify(parsedPermissionData, null, 2)}
+    ${JSON.stringify({
+      contractName: contractData.Contract_Name,
+      functions: contractData.Functions
+    }, null, 2)}
     
-    Generate a detailed security audit report for this contract.`;
+    Generated Risk Score: ${riskScore}/10
+    
+    Generate a detailed security audit report for this contract, focusing on permission and access control risks.`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
@@ -81,7 +117,9 @@ router.post('/generate-report', async (req: Request, res: Response) => {
       success: true,
       data: {
         auditMarkdown,
-        riskScore: parsedPermissionData.riskScore
+        contractName: contractData.Contract_Name,
+        contractAddress,
+        riskScore
       }
     });
   } catch (error) {
@@ -89,62 +127,6 @@ router.post('/generate-report', async (req: Request, res: Response) => {
     res.status(500).json({ 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to generate audit report' 
-    });
-  }
-});
-
-router.post('/analyze-permissions', async (req: Request, res: Response) => {
-  try {
-    const { contractAddress, contractABI } = req.body;
-
-    if (!contractAddress) {
-      res.status(400).json({ error: 'Contract address is required' });
-      return;
-    }
-
-    if (!contractABI) {
-      res.status(400).json({ error: 'Contract ABI is required' });
-      return;
-    }
-
-    // In a real implementation, this would call the permission scanner
-    // For now, we'll simulate generating permission data
-    
-    // Mock permission data generation
-    const mockFunctions = [
-      { name: "transferOwnership", permissionLevel: "owner", risk: "high" },
-      { name: "withdraw", permissionLevel: "owner", risk: "high" },
-      { name: "pause", permissionLevel: "admin", risk: "medium" },
-      { name: "unpause", permissionLevel: "admin", risk: "medium" },
-      { name: "setFees", permissionLevel: "admin", risk: "medium" },
-      { name: "addToWhitelist", permissionLevel: "owner", risk: "low" }
-    ];
-    
-    // Calculate a risk score based on the functions (0-100)
-    const highRiskCount = mockFunctions.filter(f => f.risk === "high").length;
-    const mediumRiskCount = mockFunctions.filter(f => f.risk === "medium").length;
-    const riskScore = Math.min(100, Math.floor(
-      (highRiskCount * 25 + mediumRiskCount * 10) * 
-      (mockFunctions.length > 0 ? 100 / mockFunctions.length : 0)
-    ));
-    
-    const permissionData = {
-      functions: mockFunctions,
-      riskScore: riskScore
-    };
-    
-    res.json({
-      success: true,
-      data: {
-        permissionData: permissionData,
-        riskScore: riskScore
-      }
-    });
-  } catch (error) {
-    console.error('Permission Analysis Error:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Failed to analyze permissions' 
     });
   }
 });
